@@ -46,7 +46,7 @@ export const calculateScore = (
       part1Score += move.value + bonus;
     }
 
-    // part 2
+    // part 2 - bending the part 1 solution to fit :)
     let moveNeeded: string;
     if (entry.you === "Y") {
       moveNeeded =

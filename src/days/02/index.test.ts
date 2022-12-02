@@ -45,6 +45,7 @@ describe("Day 02", () => {
   });
 
   it("solves part 2", () => {
-    console.log(getPart2Answer(realInput));
+    const answer = getPart2Answer(realInput);
+    expect(answer).toEqual(11258);
   });
 });
