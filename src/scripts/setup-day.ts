@@ -33,7 +33,7 @@ import * as http from "https";
     `${templateFolder}/index.test.ts.template`,
     "utf8"
   );
-  console.log(file);
+
   var result = file.replace(/__DAY__/g, day);
   fs.writeFileSync(`${dayFolder}/index.test.ts`, result);
 

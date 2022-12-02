@@ -6,7 +6,7 @@ import {
   getElfCalorieCounts,
   getElfCarryingMostCalories,
 } from ".";
-import { readFileToString } from "../util";
+import { readFileToString } from "../../util";
 
 describe("Day 1", () => {
   const sampleInput = readFileToString(

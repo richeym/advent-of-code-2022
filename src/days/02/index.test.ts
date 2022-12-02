@@ -3,7 +3,7 @@ import * as path from "path";
 import { getPart1Answer, getPart2Answer } from ".";
 import { readFileToString } from "../../util";
 
-describe("Day __DAY__", () => {
+describe("Day 02", () => {
   const sampleInput = readFileToString(
     path.join(__dirname, "input/sample-input.txt")
   );
