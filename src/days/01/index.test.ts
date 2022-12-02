@@ -10,7 +10,7 @@ import { readFileToString } from "../../util";
 
 describe("Day 1", () => {
   const sampleInput = readFileToString(
-    path.join(__dirname, "input/sampleinput.txt")
+    path.join(__dirname, "input/sample-input.txt")
   );
   const realInput = readFileToString(path.join(__dirname, "input/input.txt"));
 
@@ -26,11 +26,11 @@ describe("Day 1", () => {
 
   it("solves part 1", () => {
     const output = getPart1Answer(realInput);
-    console.log(output);
+    expect(output).toEqual(67450);
   });
 
   it("solves part 2", () => {
     const output = getPart2Answer(realInput);
-    console.log(output);
+    expect(output).toEqual(199357);
   });
 });

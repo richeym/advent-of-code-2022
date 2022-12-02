@@ -5,8 +5,7 @@
   "scripts": {
     "prettier:write": "prettier ./src --write",
     "test": "jest",
-    "setup:day": "ts-node ./src/scripts/setup-day.ts",
-    "test:day": "jest src/day-${npm_config_day}/*.test.ts"
+    "setup:day": "ts-node ./src/scripts/setup-day.ts"
   },
   "devDependencies": {
     "@types/jest": "^29.2.3",
