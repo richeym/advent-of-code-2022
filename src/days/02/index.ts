@@ -1,23 +1,20 @@
-const playerOneRock = "A";
-const playerOnePaper = "B";
-const playerTwoRock = "X";
-const playerTwoPaper = "Y";
-const playerTwoScissors = "Z";
-
 export interface StrategyGuideEntry {
   opponent: string;
   you: string;
 }
 
-type ScoreMap = {
-  weapon: string;
-  score: number;
-};
+interface Move {
+  yourMove: string;
+  value: number;
+  A: number;
+  B: number;
+  C: number;
+}
 
-const scoreMap: ScoreMap[] = [
-  { weapon: "X", score: 1 },
-  { weapon: "Y", score: 2 },
-  { weapon: "Z", score: 3 },
+const scoreMap: Move[] = [
+  { yourMove: "X", value: 1, A: 3, B: 0, C: 6 },
+  { yourMove: "Y", value: 2, A: 6, B: 3, C: 0 },
+  { yourMove: "Z", value: 3, A: 0, B: 6, C: 3 },
 ];
 
 export const readStrategyGuide = (input: string): StrategyGuideEntry[] => {
@@ -37,25 +34,14 @@ export const calculateScore = (
   let score: number = 0;
 
   strategyGuideEntries.forEach((entry) => {
-    score += scoreMap.find((x) => x.weapon === entry.you)!.score;
+    const move = scoreMap.find((x) => x.yourMove == entry.you)!;
 
-    if (entry.opponent == playerOneRock) {
-      score +=
-        entry.you === playerTwoRock ? 3 : entry.you === playerTwoPaper ? 6 : 0;
-    } else if (entry.opponent == playerOnePaper) {
-      score +=
-        entry.you === playerTwoPaper
-          ? 3
-          : entry.you === playerTwoScissors
-          ? 6
-          : 0;
-    } else {
-      score +=
-        entry.you === playerTwoScissors
-          ? 3
-          : entry.you === playerTwoRock
-          ? 6
-          : 0;
+    type ObjectKey = keyof typeof move;
+    const key = entry.opponent as ObjectKey;
+
+    const bonus = move[key];
+    if (typeof bonus === "number") {
+      score += move.value + bonus;
     }
   });
 
