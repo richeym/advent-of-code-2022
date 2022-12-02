@@ -1,0 +1,19 @@
+{
+  "name": "advent-of-code-2022",
+  "version": "1.0.0",
+  "author": "Rick Mather",
+  "scripts": {
+    "prettier:write": "prettier ./src --write",
+    "test": "jest",
+    "test:day": "jest src/day-${npm_config_day}/*.test.ts"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.2.3",
+    "eslint": "^8.28.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-config-standard": "^17.0.0",
+    "eslint-plugin-node": "^11.1.0",
+    "ts-jest": "^29.0.3",
+    "typescript": "^4.9.3"
+  }
+}
