@@ -25,11 +25,18 @@ describe("Day 02", () => {
     ]);
   });
 
-  it("calculates score correctly", () => {
+  it("calculates part 1 scores correctly", () => {
     const guide = readStrategyGuide(sampleInput);
-    const score = calculateScore(guide);
+    const score = calculateScore(guide).part1Score;
 
     expect(score).toBe(15);
+  });
+
+  it("calculates part 2 scores correctly", () => {
+    const guide = readStrategyGuide(sampleInput);
+    const score = calculateScore(guide).part2Score;
+
+    expect(score).toBe(12);
   });
 
   it("solves part 1", () => {
@@ -38,6 +45,6 @@ describe("Day 02", () => {
   });
 
   it("solves part 2", () => {
-    getPart2Answer(realInput);
+    console.log(getPart2Answer(realInput));
   });
 });

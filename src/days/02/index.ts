@@ -30,10 +30,12 @@ export const readStrategyGuide = (input: string): StrategyGuideEntry[] => {
 
 export const calculateScore = (
   strategyGuideEntries: StrategyGuideEntry[]
-): number => {
-  let score: number = 0;
+): { part1Score: number; part2Score: number } => {
+  let part1Score: number = 0;
+  let part2Score: number = 0;
 
   strategyGuideEntries.forEach((entry) => {
+    // part 1
     const move = scoreMap.find((x) => x.yourMove == entry.you)!;
 
     type ObjectKey = keyof typeof move;
@@ -41,18 +43,40 @@ export const calculateScore = (
 
     const bonus = move[key];
     if (typeof bonus === "number") {
-      score += move.value + bonus;
+      part1Score += move.value + bonus;
+    }
+
+    // part 2
+    let moveNeeded: string;
+    if (entry.you === "Y") {
+      moveNeeded =
+        entry.opponent === "A" ? "X" : entry.opponent === "B" ? "Y" : "Z";
+    } else if (entry.you === "X") {
+      moveNeeded =
+        entry.opponent === "A" ? "Z" : entry.opponent === "B" ? "X" : "Y";
+    } else {
+      moveNeeded =
+        entry.opponent === "A" ? "Y" : entry.opponent === "B" ? "Z" : "X";
+    }
+
+    const part2Move = scoreMap.find((x) => x.yourMove == moveNeeded)!;
+    const key2 = entry.opponent as ObjectKey;
+
+    const bonus2 = part2Move[key];
+    if (typeof bonus2 === "number") {
+      part2Score += part2Move.value + bonus2;
     }
   });
 
-  return score;
+  return { part1Score, part2Score };
 };
 
 export const getPart1Answer = (input: string): number => {
   const strategyGuide = readStrategyGuide(input);
-  return calculateScore(strategyGuide);
+  return calculateScore(strategyGuide).part1Score;
 };
 
-export const getPart2Answer = (input: string): void => {
-  return;
+export const getPart2Answer = (input: string): number => {
+  const strategyGuide = readStrategyGuide(input);
+  return calculateScore(strategyGuide).part2Score;
 };
