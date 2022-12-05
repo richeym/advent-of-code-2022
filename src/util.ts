@@ -2,7 +2,7 @@ import * as fs from "fs";
 import path from "path";
 
 const readFileToString = (fileName: string): string => {
-  return fs.readFileSync(fileName).toString();
+  return fs.readFileSync(fileName).toString().trim();
 };
 
 export { readFileToString };

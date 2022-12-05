@@ -17,7 +17,7 @@ describe("Day 03", () => {
     path.join(__dirname, "input/sample-input.txt")
   );
 
-  const parsedSampleInput = sampleInput.trim().split("\n");
+  const parsedSampleInput = sampleInput.split("\n");
 
   const realInput = readFileToString(path.join(__dirname, "input/input.txt"));
 

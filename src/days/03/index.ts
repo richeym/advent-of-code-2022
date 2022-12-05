@@ -1,5 +1,5 @@
 export const parseInput = (input: string): string[] => {
-  return input.trim().split("\n");
+  return input.split("\n");
 };
 
 export const compartmentalise = (rucksacks: string[]): string[][] => {
