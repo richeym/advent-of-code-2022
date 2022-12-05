@@ -6,7 +6,7 @@ import {
   getPart1Answer,
   getPart2Answer,
   parseInput,
-  rearrange,
+  compartmentalise,
   sumPriorities,
 } from ".";
 import { readFileToString } from "../../util";
@@ -31,7 +31,7 @@ describe("Day 03", () => {
   });
 
   it("sorts items into compartments", () => {
-    const rearranged = rearrange([
+    const rearranged = compartmentalise([
       "vJrwpWtwJgWrhcsFMMfFFhFp",
       "jqHRNqRjqzjGDLGLrsFMfFZSrLrFZsSL",
       "PmmdzqPrVvPwwTWBwg",
@@ -83,7 +83,7 @@ describe("Day 03", () => {
 
   it("solves part 1", () => {
     const answer = getPart1Answer(realInput);
-    console.log(answer);
+    expect(answer).toBe(7872);
   });
 
   it("solves part 2", () => {

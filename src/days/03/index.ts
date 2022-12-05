@@ -2,8 +2,8 @@ export const parseInput = (input: string): string[] => {
   return input.trim().split("\n");
 };
 
-export const rearrange = (backpacks: string[]): string[][] => {
-  const rearranged = backpacks.map((value: string) => {
+export const compartmentalise = (rucksacks: string[]): string[][] => {
+  const rearranged = rucksacks.map((value: string) => {
     const middle = value.length / 2;
     return [value.slice(0, middle), value.slice(middle)];
   });
@@ -22,9 +22,9 @@ export const getItemInBothCompartments = (a: string, b: string): string => {
 };
 
 export const getItemPriority = (item: string): number => {
-  return item.toLowerCase() === item
-    ? item.charCodeAt(0) - 96
-    : item.charCodeAt(0) - 65 + 27;
+  const letter = item.charCodeAt(0);
+
+  return item.toLowerCase() === item ? letter - 96 : letter - 65 + 27;
 };
 
 export const sumPriorities = (priorities: number[]): number =>
@@ -32,8 +32,8 @@ export const sumPriorities = (priorities: number[]): number =>
 
 export const getPart1Answer = (input: string): number => {
   const parsedInput = parseInput(input);
-  const rearranged = rearrange(parsedInput);
-  const itemsInBothCompartments = rearranged.map((value) =>
+  const sorted = compartmentalise(parsedInput);
+  const itemsInBothCompartments = sorted.map((value) =>
     getItemInBothCompartments(value[0], value[1])
   );
 
