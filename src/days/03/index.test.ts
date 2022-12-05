@@ -1,13 +1,14 @@
 import * as path from "path";
 
 import {
-  getItemInBothCompartments,
+  getDuplicateItem,
   getItemPriority,
   getPart1Answer,
   getPart2Answer,
   parseInput,
   compartmentalise,
   sumPriorities,
+  groupRucksacks,
 } from ".";
 import { readFileToString } from "../../util";
 
@@ -15,19 +16,15 @@ describe("Day 03", () => {
   const sampleInput = readFileToString(
     path.join(__dirname, "input/sample-input.txt")
   );
+
+  const parsedSampleInput = sampleInput.trim().split("\n");
+
   const realInput = readFileToString(path.join(__dirname, "input/input.txt"));
 
   it("parses input correctly", () => {
     const parsedInput = parseInput(sampleInput);
 
-    expect(parsedInput).toEqual([
-      "vJrwpWtwJgWrhcsFMMfFFhFp",
-      "jqHRNqRjqzjGDLGLrsFMfFZSrLrFZsSL",
-      "PmmdzqPrVvPwwTWBwg",
-      "wMqvLMZHhHMvwLHjbvcjnnSBnvTQFn",
-      "ttgJtRGJQctTZtZT",
-      "CrZsJsPPZsGzwwsLwLmpwMDw",
-    ]);
+    expect(parsedInput).toEqual(parsedSampleInput);
   });
 
   it("sorts items into compartments", () => {
@@ -53,7 +50,7 @@ describe("Day 03", () => {
   test.each(rearrangedCompartments)(
     "gets item in both comparments for %p and %p as %p",
     (a, b, expected) => {
-      const itemInBothCompartments = getItemInBothCompartments(a, b);
+      const itemInBothCompartments = getDuplicateItem([a, b]);
 
       expect(itemInBothCompartments).toEqual(expected);
     }
@@ -76,6 +73,34 @@ describe("Day 03", () => {
     }
   });
 
+  it("divides rucksacks into groups of three", () => {
+    const groupedRucksacks = groupRucksacks(parsedSampleInput);
+
+    expect(groupedRucksacks).toEqual([
+      [
+        "vJrwpWtwJgWrhcsFMMfFFhFp",
+        "jqHRNqRjqzjGDLGLrsFMfFZSrLrFZsSL",
+        "PmmdzqPrVvPwwTWBwg",
+      ],
+      [
+        "wMqvLMZHhHMvwLHjbvcjnnSBnvTQFn",
+        "ttgJtRGJQctTZtZT",
+        "CrZsJsPPZsGzwwsLwLmpwMDw",
+      ],
+    ]);
+  });
+
+  it("finds item that appears in all grouped rucksacks", () => {
+    const groupedRucksack = [
+      "vJrwpWtwJgWrhcsFMMfFFhFp",
+      "jqHRNqRjqzjGDLGLrsFMfFZSrLrFZsSL",
+      "PmmdzqPrVvPwwTWBwg",
+    ];
+
+    const item = getDuplicateItem(groupedRucksack);
+    expect(item).toEqual("r");
+  });
+
   it("sums item priorities", () => {
     const priorities = sumPriorities([16, 38, 42, 22, 20, 19]);
     expect(priorities).toBe(157);
@@ -87,6 +112,7 @@ describe("Day 03", () => {
   });
 
   it("solves part 2", () => {
-    getPart2Answer(realInput);
+    const answer = getPart2Answer(realInput);
+    expect(answer).toBe(2497);
   });
 });
