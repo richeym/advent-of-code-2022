@@ -83,11 +83,11 @@ export const moveCrate9001 = (
 
 export const getSuppliesForEachStack = (stacks: string[][]): string =>
   stacks.reduce((acc, curr) => {
-    return (acc += curr[curr.length - 1]);
+    return (acc += curr.pop());
   }, "");
 
 export const getPart1Answer = (input: string): string => {
-  let { stacks, instructions } = parseInput(input);
+  const { stacks, instructions } = parseInput(input);
   for (let instruction of instructions) {
     moveCrate(stacks, instruction);
   }
@@ -96,7 +96,7 @@ export const getPart1Answer = (input: string): string => {
 };
 
 export const getPart2Answer = (input: string): string => {
-  let { stacks, instructions } = parseInput(input);
+  const { stacks, instructions } = parseInput(input);
   for (let instruction of instructions) {
     moveCrate9001(stacks, instruction);
   }
