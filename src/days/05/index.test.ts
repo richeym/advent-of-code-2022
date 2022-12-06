@@ -6,6 +6,7 @@ import {
   getPart2Answer,
   parseInput,
   getSuppliesForEachStack,
+  moveCrate9001,
 } from ".";
 import { readFileToString } from "../../util";
 
@@ -31,16 +32,16 @@ describe("Day 05", () => {
     const stacks = [["Z", "N"], []];
     const instruction = "1-1-2";
 
-    const output = moveCrate(stacks, instruction);
-    expect(output).toEqual([["Z"], ["N"]]);
+    moveCrate(stacks, instruction);
+    expect(stacks).toEqual([["Z"], ["N"]]);
   });
 
   it("applies a move instruction to a large numbe of crates", () => {
     const stacks = [[], ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]];
     const instruction = "10-2-1";
 
-    const output = moveCrate(stacks, instruction);
-    expect(output).toEqual([
+    moveCrate(stacks, instruction);
+    expect(stacks).toEqual([
       ["J", "I", "H", "G", "F", "E", "D", "C", "B", "A"],
       [],
     ]);
@@ -52,12 +53,23 @@ describe("Day 05", () => {
     expect(supplies).toEqual("NDP");
   });
 
+  it("moves multiple crates with the CrateMover 9001", () => {
+    const stacks = [[], ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]];
+    const instruction = "5-2-1";
+    moveCrate9001(stacks, instruction);
+    expect(stacks).toEqual([
+      ["F", "G", "H", "I", "J"],
+      ["A", "B", "C", "D", "E"],
+    ]);
+  });
+
   it("solves part 1", () => {
     const output = getPart1Answer(realInput);
     expect(output).toEqual("JRVNHHCSJ");
   });
 
   it("solves part 2", () => {
-    getPart2Answer(realInput);
+    const output = getPart2Answer(realInput);
+    expect(output).toEqual("GNFBSBJLH");
   });
 });

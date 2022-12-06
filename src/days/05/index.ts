@@ -47,23 +47,28 @@ const readInstructions = (input: string): string[] => {
   return instructions;
 };
 
-export const moveCrate = (
+export const moveCrate = (stacks: string[][], instruction: string): void => {
+  const [amount, from, to] = instruction.split("-").map(Number);
+
+  for (let i = 0; i < amount; i++) {
+    const crate = stacks[from - 1].pop()!;
+    stacks[to - 1].push(crate);
+  }
+};
+
+export const moveCrate9001 = (
   stacks: string[][],
   instruction: string
-): string[][] => {
-  const [distance, from, to] = instruction.split("-").map(Number);
+): void => {
+  const [amount, from, to] = instruction.split("-").map(Number);
 
   try {
-    for (let i = 0; i < distance; i++) {
-      const crate = stacks[from - 1].pop()!;
-      stacks[to - 1].push(crate);
-    }
-
-    return stacks;
+    const fromStackLength = stacks[from - 1].length;
+    const crates = stacks[from - 1].slice(amount * -1);
+    stacks[to - 1] = stacks[to - 1].concat(crates);
+    stacks[from - 1] = stacks[from - 1].slice(0, amount * -1);
   } catch (err) {
-    throw Error(
-      `${err}\n\n${distance} from ${from} to ${to}\nStack: ${stacks}`
-    );
+    throw Error(`${err}\n\n${amount} from ${from} to ${to}\nStack: ${stacks}`);
   }
 };
 
@@ -75,12 +80,17 @@ export const getSuppliesForEachStack = (stacks: string[][]): string =>
 export const getPart1Answer = (input: string): string => {
   let { stacks, instructions } = parseInput(input);
   for (let instruction of instructions) {
-    stacks = moveCrate(stacks, instruction);
+    moveCrate(stacks, instruction);
   }
 
   return getSuppliesForEachStack(stacks);
 };
 
-export const getPart2Answer = (input: string): void => {
-  return;
+export const getPart2Answer = (input: string): string => {
+  let { stacks, instructions } = parseInput(input);
+  for (let instruction of instructions) {
+    moveCrate9001(stacks, instruction);
+  }
+
+  return getSuppliesForEachStack(stacks);
 };
