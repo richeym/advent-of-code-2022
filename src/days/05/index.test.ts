@@ -7,6 +7,7 @@ import {
   parseInput,
   getSuppliesForEachStack,
   moveCrate9001,
+  Instruction,
 } from ".";
 import { readFileToString } from "../../util";
 
@@ -25,12 +26,37 @@ describe("Day 05", () => {
   it("parses input into instructions", () => {
     const { instructions } = parseInput(sampleInput);
 
-    expect(instructions).toEqual(["1-2-1", "3-1-3", "2-2-1", "1-1-2"]);
+    expect(instructions).toEqual([
+      {
+        amount: 1,
+        from: 2,
+        to: 1,
+      },
+      {
+        amount: 3,
+        from: 1,
+        to: 3,
+      },
+      {
+        amount: 2,
+        from: 2,
+        to: 1,
+      },
+      {
+        amount: 1,
+        from: 1,
+        to: 2,
+      },
+    ]);
   });
 
   it("applies a move instruction", () => {
     const stacks = [["Z", "N"], []];
-    const instruction = "1-1-2";
+    const instruction: Instruction = {
+      amount: 1,
+      from: 1,
+      to: 2,
+    };
 
     moveCrate(stacks, instruction);
     expect(stacks).toEqual([["Z"], ["N"]]);
@@ -38,7 +64,11 @@ describe("Day 05", () => {
 
   it("applies a move instruction to a large numbe of crates", () => {
     const stacks = [[], ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]];
-    const instruction = "10-2-1";
+    const instruction: Instruction = {
+      amount: 10,
+      from: 2,
+      to: 1,
+    };
 
     moveCrate(stacks, instruction);
     expect(stacks).toEqual([
@@ -55,8 +85,14 @@ describe("Day 05", () => {
 
   it("moves multiple crates with the CrateMover 9001", () => {
     const stacks = [[], ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]];
-    const instruction = "5-2-1";
+    const instruction: Instruction = {
+      amount: 5,
+      from: 2,
+      to: 1,
+    };
+
     moveCrate9001(stacks, instruction);
+
     expect(stacks).toEqual([
       ["F", "G", "H", "I", "J"],
       ["A", "B", "C", "D", "E"],

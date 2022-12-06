@@ -1,10 +1,16 @@
+export interface Instruction {
+  amount: number;
+  from: number;
+  to: number;
+}
+
 export const parseInput = (
   input: string
-): { stacks: string[][]; instructions: string[] } => {
+): { stacks: string[][]; instructions: Instruction[] } => {
   const inputs = input.trimEnd().split("\n\n");
 
   const stacks: string[][] = readStacks(inputs[0]);
-  const instructions: string[] = readInstructions(inputs[1]);
+  const instructions: Instruction[] = readInstructions(inputs[1]);
 
   return { stacks, instructions };
 };
@@ -35,41 +41,44 @@ const readStacks = (input: string): string[][] => {
   return stacks;
 };
 
-const readInstructions = (input: string): string[] => {
+const readInstructions = (input: string): Instruction[] => {
   const moveRegex = new RegExp(/^move (\d+) from (\d+) to (\d+)$/);
-  const instructions: string[] = [];
+  const instructions: Instruction[] = [];
 
   for (let inputLine of input.split("\n")) {
     const match = moveRegex.exec(inputLine)!;
-    const instruction = `${match[1]}-${match[2]}-${match[3]}`;
+    const instruction: Instruction = {
+      amount: parseInt(match[1]),
+      from: parseInt(match[2]),
+      to: parseInt(match[3]),
+    };
+
     instructions.push(instruction);
   }
+
   return instructions;
 };
 
-export const moveCrate = (stacks: string[][], instruction: string): void => {
-  const [amount, from, to] = instruction.split("-").map(Number);
-
-  for (let i = 0; i < amount; i++) {
-    const crate = stacks[from - 1].pop()!;
-    stacks[to - 1].push(crate);
+export const moveCrate = (
+  stacks: string[][],
+  instruction: Instruction
+): void => {
+  for (let i = 0; i < instruction.amount; i++) {
+    const crate = stacks[instruction.from - 1].pop()!;
+    stacks[instruction.to - 1].push(crate);
   }
 };
 
 export const moveCrate9001 = (
   stacks: string[][],
-  instruction: string
+  instruction: Instruction
 ): void => {
-  const [amount, from, to] = instruction.split("-").map(Number);
-
-  try {
-    const fromStackLength = stacks[from - 1].length;
-    const crates = stacks[from - 1].slice(amount * -1);
-    stacks[to - 1] = stacks[to - 1].concat(crates);
-    stacks[from - 1] = stacks[from - 1].slice(0, amount * -1);
-  } catch (err) {
-    throw Error(`${err}\n\n${amount} from ${from} to ${to}\nStack: ${stacks}`);
-  }
+  const crates = stacks[instruction.from - 1].slice(instruction.amount * -1);
+  stacks[instruction.to - 1] = stacks[instruction.to - 1].concat(crates);
+  stacks[instruction.from - 1] = stacks[instruction.from - 1].slice(
+    0,
+    instruction.amount * -1
+  );
 };
 
 export const getSuppliesForEachStack = (stacks: string[][]): string =>
