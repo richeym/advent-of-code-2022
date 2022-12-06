@@ -1,5 +1,8 @@
 export const readAssignments = (input: string): string[][] =>
-  input.split("\n").map((value) => value.split(","));
+  input
+    .trim()
+    .split("\n")
+    .map((value) => value.split(","));
 
 export const countContainedAssignments = (assignments: string[][]): number => {
   const count = assignments.reduce((counter, assignment) => {
