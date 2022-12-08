@@ -1,13 +1,17 @@
-import * as path from "path";
+import path from "path";
 
 import {
+  DirectoryMatch,
   executeCdCommand,
-  FSEntry,
+  Directory,
+  getDirectorySize,
   getPart1Answer,
   getPart2Answer,
   parseTerminalCommand,
+  parseTerminalOutputToFileSystem,
   storeFileSystemEntries,
   TerminalCommand,
+  File,
 } from ".";
 import { readFileToString } from "../../util";
 
@@ -40,154 +44,197 @@ describe("Day 07", () => {
 
   it("stores filesystem entries", () => {
     const entries = ["dir a", "14848514 b.txt", "8504156 c.dat"];
-    const workingDir = {
+    const cwd: Directory = {
       name: "/",
-      isDirectory: true,
-      size: 0,
-      children: [],
+      files: [],
+      subDirectories: [],
     };
 
-    storeFileSystemEntries(workingDir, entries);
+    storeFileSystemEntries(cwd, entries);
 
-    expect(workingDir.children).toEqual([
+    expect(cwd.subDirectories).toEqual([
       {
         name: "a",
-        isDirectory: true,
-        size: 0,
-        children: [],
-        parent: workingDir,
+        subDirectories: [],
+        files: [],
+        parent: cwd,
       },
+    ]);
+
+    expect(cwd.files).toEqual([
       {
         name: "b.txt",
-        isDirectory: false,
         size: 14848514,
-        children: [],
-        parent: workingDir,
       },
       {
         name: "c.dat",
-        isDirectory: false,
         size: 8504156,
-        children: [],
-        parent: workingDir,
       },
     ]);
   });
 
   it("cd can change to root directory", () => {
-    const workingDir: FSEntry = {
+    const cwd: Directory = {
       name: "a",
-      isDirectory: true,
-      size: 0,
-      children: [],
+      subDirectories: [],
+      files: [],
     };
 
-    const rootDir: FSEntry = {
+    const rootDir: Directory = {
       name: "/",
-      isDirectory: true,
-      size: 0,
-      children: [workingDir],
+      subDirectories: [cwd],
+      files: [],
     };
 
-    workingDir.parent = rootDir;
+    cwd.parent = rootDir;
 
-    const newWorkingDir = executeCdCommand(workingDir, "/");
+    const newCwd = executeCdCommand(cwd, "/");
 
-    expect(newWorkingDir.name).toEqual(rootDir.name);
+    expect(newCwd.name).toEqual(rootDir.name);
   });
 
   it("cd can go up a level", () => {
-    const workingDir: FSEntry = {
-      name: "workingDir",
-      isDirectory: true,
-      size: 0,
-      children: [],
+    const cwd: Directory = {
+      name: "cwd",
+      subDirectories: [],
+      files: [],
     };
 
-    const subDir: FSEntry = {
-      name: "expectedDir",
-      isDirectory: true,
-      size: 0,
-      children: [workingDir],
+    const subDir: Directory = {
+      name: "expectedCwd",
+      subDirectories: [cwd],
+      files: [],
     };
-    workingDir.parent = subDir;
+    cwd.parent = subDir;
 
-    const rootDir: FSEntry = {
+    const rootDir: Directory = {
       name: "/",
-      isDirectory: true,
-      size: 0,
-      children: [subDir],
+      subDirectories: [subDir],
+      files: [],
     };
     subDir.parent = rootDir;
 
-    const newWorkingDir = executeCdCommand(workingDir, "..");
+    const newCwd = executeCdCommand(cwd, "..");
 
-    expect(newWorkingDir.name).toEqual(subDir.name);
+    expect(newCwd.name).toEqual(subDir.name);
   });
 
   it("cd can go into a directory", () => {
-    const subDir: FSEntry = {
-      name: "expectedDir",
-      isDirectory: true,
-      size: 0,
-      children: [],
+    const subDir: Directory = {
+      name: "expectedCwd",
+      subDirectories: [],
+      files: [],
     };
 
-    const rootDir: FSEntry = {
+    const rootDir: Directory = {
       name: "/",
-      isDirectory: true,
-      size: 0,
-      children: [subDir],
+      subDirectories: [subDir],
+      files: [],
     };
     subDir.parent = rootDir;
 
-    const newWorkingDir = executeCdCommand(rootDir, "expectedDir");
+    const cwd = executeCdCommand(rootDir, "expectedCwd");
 
-    expect(newWorkingDir.name).toEqual(subDir.name);
+    expect(cwd.name).toEqual(subDir.name);
   });
 
-  // it("creates filesystem from input", () => {
-  //   const fileSystem = parseTerminalOutput(sampleInput);
+  it("cd creates directory if it doesn't exist", () => {
+    const rootDir: Directory = {
+      name: "/",
+      subDirectories: [],
+      files: [],
+    };
 
-  //   const expectedFileSystem: FSEntry = {
-  //     name: "/",
-  //     children: [
-  //       {
-  //         name: "a",
-  //         children: [
-  //           {
-  //             name: "e",
-  //             children: [{ name: "i" }],
-  //           },
-  //           { name: "f" },
-  //           { name: "g" },
-  //           { name: "h.lst" },
-  //         ],
-  //       },
-  //       {
-  //         name: "b.txt",
-  //       },
-  //       { name: "c.dat" },
-  //       {
-  //         name: "d",
-  //         children: [
-  //           { name: "j" },
-  //           { name: "d.log" },
-  //           { name: "d.ext" },
-  //           { name: "k" },
-  //         ],
-  //       },
-  //     ],
-  //   };
+    const cwd = executeCdCommand(rootDir, "expectedDir");
 
-  //   expect(fileSystem).toEqual(expectedFileSystem);
-  // });
+    expect(cwd).toEqual({
+      name: "expectedDir",
+      subDirectories: [],
+      files: [],
+      parent: rootDir,
+    });
+  });
+
+  it("creates filesystem from input", () => {
+    const fileSystem = parseTerminalOutputToFileSystem(sampleInput);
+
+    expect(fileSystem.name).toEqual("/");
+    expect(fileSystem.files[0].name).toEqual("b.txt");
+    expect(fileSystem.files[1].name).toEqual("c.dat");
+    expect(fileSystem.subDirectories[0].name).toEqual("a");
+    expect(fileSystem.subDirectories[0].files[0].name).toEqual("f");
+    expect(fileSystem.subDirectories[0].files[1].name).toEqual("g");
+    expect(fileSystem.subDirectories[0].files[2].name).toEqual("h.lst");
+    expect(fileSystem.subDirectories[0].subDirectories[0].name).toEqual("e");
+    expect(fileSystem.subDirectories[1].name).toEqual("d");
+    expect(fileSystem.subDirectories[1].files[0].name).toEqual("j");
+    expect(fileSystem.subDirectories[1].files[1].name).toEqual("d.log");
+    expect(fileSystem.subDirectories[1].files[2].name).toEqual("d.ext");
+    expect(fileSystem.subDirectories[1].files[3].name).toEqual("k");
+  });
+
+  it("calculates size of files in folder", () => {
+    const fileAtRootA: File = {
+      name: "a.txt",
+      size: 50,
+    };
+
+    const fileAtRootB: File = {
+      name: "b.txt",
+      size: 150,
+    };
+
+    const fileAtLevel1: File = {
+      name: "c.txt",
+      size: 250,
+    };
+
+    const fileAtlevel2: File = {
+      name: "c.txt",
+      size: 50,
+    };
+
+    const level2Directory: Directory = {
+      name: "level2Dir",
+      subDirectories: [],
+      files: [fileAtlevel2],
+    };
+
+    const level1Directory: Directory = {
+      name: "level1Dir",
+      subDirectories: [level2Directory],
+      files: [fileAtLevel1],
+    };
+    level2Directory.parent = level1Directory;
+
+    const rootDir: Directory = {
+      name: "/",
+      subDirectories: [level1Directory],
+      files: [fileAtRootA, fileAtRootB],
+    };
+    level1Directory.parent = rootDir;
+
+    const matches: DirectoryMatch[] = [];
+    const size = getDirectorySize(rootDir, matches);
+
+    expect(size).toEqual(500);
+
+    expect(matches.find((x) => x.directory.name === "/")!.size).toBe(500);
+    expect(matches.find((x) => x.directory.name === "level1Dir")!.size).toBe(
+      300
+    );
+    expect(matches.find((x) => x.directory.name === "level2Dir")!.size).toBe(
+      50
+    );
+  });
 
   it("solves part 1", () => {
-    getPart1Answer(realInput);
+    const size = getPart1Answer(realInput);
+    expect(size).toEqual(1583951);
   });
 
   it("solves part 2", () => {
-    getPart2Answer(realInput);
+    const size = getPart2Answer(realInput);
+    expect(size).toEqual(214171);
   });
 });

@@ -1,9 +1,13 @@
-export interface FSEntry {
+export interface Directory {
   name: string;
-  isDirectory: boolean;
+  subDirectories: Directory[];
+  files: File[];
+  parent?: Directory;
+}
+
+export interface File {
+  name: string;
   size: number;
-  children: FSEntry[];
-  parent?: FSEntry;
 }
 
 export interface TerminalCommand {
@@ -12,25 +16,27 @@ export interface TerminalCommand {
   outputs: string[];
 }
 
-export const parseTerminalOutput = (input: string): FSEntry => {
-  const commandsAndOutputs = input.trim().split("\n$");
+export const parseTerminalOutputToFileSystem = (input: string): Directory => {
+  const commandsAndOutputs = input
+    .trim()
+    .split("$")
+    .map((x) => `\$ ${x.trim()}`);
 
-  const rootDir: FSEntry = {
+  const rootDir: Directory = {
     name: "/",
-    isDirectory: true,
-    size: 0,
-    children: [],
+    subDirectories: [],
+    files: [],
   };
 
-  const workingDir: FSEntry = rootDir;
+  let cwd: Directory = rootDir;
 
   for (let commandAndOutput of commandsAndOutputs) {
-    if (commandAndOutput.startsWith("$")) {
-      const terminalCommand = parseTerminalCommand(commandAndOutput);
+    const terminalCommand = parseTerminalCommand(commandAndOutput);
 
-      if (terminalCommand.command === "ls") {
-        storeFileSystemEntries(workingDir, terminalCommand.outputs);
-      }
+    if (terminalCommand.command === "ls") {
+      storeFileSystemEntries(cwd, terminalCommand.outputs);
+    } else if (terminalCommand.command === "cd") {
+      cwd = executeCdCommand(cwd, terminalCommand.args);
     }
   }
 
@@ -38,44 +44,51 @@ export const parseTerminalOutput = (input: string): FSEntry => {
 };
 
 export const storeFileSystemEntries = (
-  workingDir: FSEntry,
+  cwd: Directory,
   entries: string[]
-): void => {
+): Directory[] => {
   for (let entry of entries) {
     const [sizeOrDir, name] = entry.split(" ");
 
-    workingDir.children.push({
-      name,
-      isDirectory: sizeOrDir === "dir",
-      size: sizeOrDir !== "dir" ? parseInt(sizeOrDir) : 0,
-      children: [],
-      parent: workingDir,
-    });
+    if (sizeOrDir === "dir") {
+      cwd.subDirectories.push({
+        name,
+        subDirectories: [],
+        files: [],
+        parent: cwd,
+      });
+    } else {
+      cwd.files.push({
+        name,
+        size: parseInt(sizeOrDir),
+      });
+    }
   }
+
+  return cwd.subDirectories;
 };
 
-export const executeCdCommand = (
-  workingDir: FSEntry,
-  path: string
-): FSEntry => {
-  let newWorkingDir = workingDir;
+export const executeCdCommand = (cwd: Directory, path: string): Directory => {
+  let newCwd = cwd;
 
   if (path === "/") {
-    while (newWorkingDir.parent) {
-      newWorkingDir = newWorkingDir.parent;
+    while (newCwd.parent) {
+      newCwd = newCwd.parent;
     }
   } else if (path === "..") {
-    if (newWorkingDir.parent) {
-      newWorkingDir = newWorkingDir.parent;
+    if (newCwd.parent) {
+      newCwd = newCwd.parent;
     }
   } else {
-    const subDir = newWorkingDir.children.find((x) => x.name === path);
+    const subDir = newCwd.subDirectories.find((x) => x.name === path);
     if (subDir) {
-      newWorkingDir = subDir;
+      newCwd = subDir;
+    } else {
+      newCwd = storeFileSystemEntries(newCwd, [`dir ${path}`])[0];
     }
   }
 
-  return newWorkingDir;
+  return newCwd;
 };
 
 export const parseTerminalCommand = (
@@ -91,10 +104,50 @@ export const parseTerminalCommand = (
   return { command, args, outputs };
 };
 
-export const getPart1Answer = (input: string): void => {
-  return;
+export interface DirectoryMatch {
+  directory: Directory;
+  size: number;
+}
+export const getDirectorySize = (
+  directory: Directory,
+  matches: DirectoryMatch[] = [],
+  sizeLimit: number = Number.MAX_SAFE_INTEGER
+): number => {
+  let size = 0;
+
+  for (let entry of directory.files) {
+    size += entry.size;
+  }
+  for (let entry of directory.subDirectories) {
+    size += getDirectorySize(entry, matches, sizeLimit);
+  }
+
+  if (size <= sizeLimit) {
+    matches.push({ directory, size });
+  }
+
+  return size;
 };
 
-export const getPart2Answer = (input: string): void => {
-  return;
+export const getPart1Answer = (input: string): number => {
+  const rootDirectory = parseTerminalOutputToFileSystem(input);
+  const matches: DirectoryMatch[] = [];
+  getDirectorySize(rootDirectory, matches, 100000);
+
+  return matches.reduce((acc, curr) => {
+    return (acc += curr.size);
+  }, 0);
+};
+
+export const getPart2Answer = (input: string): number => {
+  const rootDirectory = parseTerminalOutputToFileSystem(input);
+  const matches: DirectoryMatch[] = [];
+  const size = getDirectorySize(rootDirectory, matches);
+  matches.sort((a, b) => {
+    return a.size >= b.size ? 1 : -1;
+  });
+
+  const unusedSpace = 70000000 - size;
+  const requiredSpace = 30000000 - unusedSpace;
+  return matches.find((x) => x.size >= requiredSpace)!.size;
 };
