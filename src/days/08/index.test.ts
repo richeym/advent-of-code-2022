@@ -35,7 +35,7 @@ describe("Day 08", () => {
   });
 
   const scenicScoreTestCases = [
-    // [1, 2, 4],
+    [1, 2, 4],
     [3, 2, 8],
   ];
 
@@ -54,6 +54,6 @@ describe("Day 08", () => {
 
   it("solves part 2", () => {
     const bestScenicScore = getPart2Answer(realInput);
-    expect(bestScenicScore).toEqual(3130512);
+    expect(bestScenicScore).toEqual(479400);
   });
 });
