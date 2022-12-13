@@ -4,16 +4,20 @@ import {
   Coordinate,
   getPart1Answer,
   getPart2Answer,
-  move,
-  runSimulation,
   parseInput,
+  Rope,
   Vector,
+  visualize,
 } from ".";
 import { readFileToString } from "../../util";
 
 describe("Day 09", () => {
   const sampleInput = readFileToString(
     path.join(__dirname, "input/sample-input.txt")
+  );
+
+  const sampleInput2 = readFileToString(
+    path.join(__dirname, "input/sample-input-2.2.txt")
   );
 
   const expectedParsedInput: Vector[] = [
@@ -78,58 +82,68 @@ describe("Day 09", () => {
   ];
 
   test.each(headMoveTestCases)("Moves head %p", (vector, coord) => {
-    const h: Coordinate = { x: 0, y: 0 };
-    const t: Coordinate = { x: 0, y: 0 };
-    const expectedMoveResult = move(vector as Vector, h, t);
-    expect(expectedMoveResult.h).toEqual(coord as Coordinate);
+    const rope = new Rope();
+
+    rope.move(vector as Vector);
+    expect(rope.knotPositions[0]).toEqual(coord as Coordinate);
   });
 
   const tailNotFollowingHeadOnInitialMoveTestCases: (Vector | Coordinate)[][] =
     [
       [
-        { direction: "R", distance: 1 },
-        { x: 0, y: 0 },
+        { direction: "R", distance: 2 },
+        { x: 1, y: 0 },
       ],
       [
-        { direction: "L", distance: 1 },
-        { x: 0, y: 0 },
+        { direction: "L", distance: 2 },
+        { x: -1, y: 0 },
       ],
       [
-        { direction: "U", distance: 1 },
-        { x: 0, y: 0 },
+        { direction: "U", distance: 2 },
+        { x: 0, y: -1 },
       ],
       [
-        { direction: "D", distance: 1 },
-        { x: 0, y: 0 },
-      ],
-      [
-        { direction: "R", distance: 3 },
-        { x: 2, y: 0 },
+        { direction: "D", distance: 2 },
+        { x: 0, y: 1 },
       ],
     ];
 
   test.each(tailNotFollowingHeadOnInitialMoveTestCases)(
     "tail does not follows if adjacent. Direction: %p, End position: %p",
     (vector, expectedPosition) => {
-      const h: Coordinate = { x: 0, y: 0 };
-      const t: Coordinate = { x: 0, y: 0 };
+      const rope = new Rope();
 
-      const expectedMoveResult = move(vector as Vector, h, t);
-      expect(expectedMoveResult.t).toEqual(expectedPosition);
+      rope.move(vector as Vector);
+      expect(rope.knotPositions[1]).toEqual(expectedPosition);
     }
   );
 
-  it("solves sample input", () => {
-    const result = runSimulation(expectedParsedInput);
+  it("solves sample input part 1", () => {
+    const rope = new Rope();
+    const result = rope.simulate(expectedParsedInput);
     expect(result).toEqual(13);
+  });
+
+  it("solves sample input part 2", () => {
+    const rope = new Rope(10);
+    const input = parseInput(sampleInput2);
+    const result = rope.simulate(input);
+    expect(result).toEqual(1);
+  });
+
+  it.skip("solves sample input part 2 - larger data set", () => {
+    const input = parseInput(sampleInput2);
+    const rope = new Rope(10);
+    const result = rope.simulate(input);
+    expect(result).toEqual(36);
   });
 
   it("solves part 1", () => {
     const result = getPart1Answer(realInput);
-    expect(result).toEqual(1);
+    expect(result).toEqual(6057);
   });
 
-  it("solves part 2", () => {
+  it.skip("solves part 2", () => {
     getPart2Answer(realInput);
   });
 });

@@ -8,84 +8,125 @@ export interface Coordinate {
   y: number;
 }
 
-export interface MoveResult {
-  h: Coordinate;
-  t: Coordinate;
-  tVisited: Coordinate[];
-}
+export class Rope {
+  readonly knotPositions: Coordinate[] = [];
+  readonly head: Coordinate;
 
-export const runSimulation = (vectors: Vector[]): number => {
-  let moveResult: MoveResult = {
-    h: { x: 0, y: 0 },
-    t: { x: 0, y: 0 },
-    tVisited: [],
-  };
+  constructor(knots: number = 2) {
+    if (knots < 2) {
+      throw Error("Must be at least two knots in a rope");
+    }
 
-  const visited: Coordinate[] = [{ x: 0, y: 0 }];
+    for (let i = 0; i < knots; i++) {
+      this.knotPositions.push({ x: 0, y: 0 });
+    }
 
-  for (let vector of vectors) {
-    moveResult = move(vector, moveResult.h, moveResult.t);
+    this.head = this.knotPositions[0];
+  }
 
-    for (let visitedThisMove of moveResult.tVisited) {
-      if (
-        !visited.find(
-          (coord) =>
-            coord.x === visitedThisMove.x && coord.y === visitedThisMove.y
-        )
-      ) {
-        visited.push(visitedThisMove);
+  move = (vector: Vector): Coordinate[] => {
+    const visited: Coordinate[] = [];
+
+    for (let _ = 0; _ < vector.distance; _++) {
+      let lastMovedKnotPriorLocation: Coordinate = Object.assign({}, this.head);
+
+      this.moveHead(vector.direction);
+
+      let knotMoved = true;
+      for (let i = 1; i < this.knotPositions.length && knotMoved; i++) {
+        const chasingKnot = this.knotPositions[i];
+        const movedKnot = this.knotPositions[i - 1];
+        if (
+          Math.abs(movedKnot.x - chasingKnot.x) > 1 ||
+          Math.abs(movedKnot.y - chasingKnot.y) > 1
+        ) {
+          let chasingKnotLocationBeforeMove = Object.assign({}, chasingKnot);
+
+          chasingKnot.x = lastMovedKnotPriorLocation.x;
+          chasingKnot.y = lastMovedKnotPriorLocation.y;
+
+          if (i === this.knotPositions.length - 1) {
+            visited.push(Object.assign({}, this.knotPositions[i]));
+          }
+          lastMovedKnotPriorLocation = Object.assign(
+            {},
+            chasingKnotLocationBeforeMove
+          );
+
+          knotMoved = true;
+        } else {
+          knotMoved = false;
+        }
       }
     }
-  }
 
-  return visited.length;
-};
-
-export const move = (
-  vector: Vector,
-  h: Coordinate,
-  t: Coordinate
-): MoveResult => {
-  let currentHx: number = h.x;
-  let currentHy: number = h.y;
-  const tVisited: Coordinate[] = [];
-
-  let currentH: Coordinate = h;
-  let lastH: Coordinate = h;
-  let currentT: Coordinate = t;
-
-  for (let i = 0; i < vector.distance; i++) {
-    lastH = currentH;
-
-    if (vector.direction === "R") {
-      currentHx++;
-    }
-    if (vector.direction === "L") {
-      currentHx--;
-    }
-    if (vector.direction === "U") {
-      currentHy--;
-    }
-    if (vector.direction === "D") {
-      currentHy++;
-    }
-
-    currentH = { x: currentHx, y: currentHy };
-
-    if (
-      Math.abs(currentH.x - currentT.x) > 1 ||
-      Math.abs(currentH.y - currentT.y) > 1
-    ) {
-      currentT = lastH;
-      tVisited.push(currentT);
-    }
-  }
-
-  return {
-    h: currentH,
-    t: currentT,
-    tVisited: tVisited,
+    return visited;
   };
+
+  moveHead = (direction: string): void => {
+    if (direction === "R") {
+      this.head.x++;
+    }
+    if (direction === "L") {
+      this.head.x--;
+    }
+    if (direction === "U") {
+      this.head.y--;
+    }
+    if (direction === "D") {
+      this.head.y++;
+    }
+  };
+
+  simulate = (vectors: Vector[]): number => {
+    const visited: Coordinate[] = [{ x: 0, y: 0 }];
+
+    for (let vector of vectors) {
+      const visitedCoordinatesThisMove = this.move(vector);
+
+      for (let visitedCoordinateThisMove of visitedCoordinatesThisMove) {
+        if (
+          !visited.find(
+            (coord) =>
+              coord.x === visitedCoordinateThisMove.x &&
+              coord.y === visitedCoordinateThisMove.y
+          )
+        ) {
+          visited.push(visitedCoordinateThisMove);
+        }
+      }
+    }
+
+    return visited.length;
+  };
+}
+
+export const visualize = (rope: Rope): void => {
+  const knotPositions = rope.knotPositions;
+  let minX = Math.min(...rope.knotPositions.map((knot) => knot.x));
+  let maxX = Math.max(...rope.knotPositions.map((knot) => knot.x));
+  let minY = Math.min(...rope.knotPositions.map((knot) => knot.y));
+  let maxY = Math.max(...rope.knotPositions.map((knot) => knot.x));
+
+  console.log(`${minX},${minY},${maxX},${maxY}`);
+  let grid: string = "";
+  for (let y = minY; y <= maxY; y++) {
+    for (let x = minX; x <= maxX; x++) {
+      const knot = knotPositions.find((knot) => knot.x === x && knot.y === y);
+      if (knot) {
+        const index = knotPositions.indexOf(knot);
+        const marker =
+          index === 0 ? "H" : index === knotPositions.length - 1 ? "T" : index;
+
+        grid += marker.toString();
+      } else {
+        grid += ".";
+      }
+    }
+    grid += "\n";
+  }
+
+  console.log(grid);
 };
 
 export const parseInput = (input: string): Vector[] => {
@@ -104,7 +145,8 @@ export const parseInput = (input: string): Vector[] => {
 
 export const getPart1Answer = (input: string): number => {
   const instructions = parseInput(input);
-  return runSimulation(instructions);
+  const rope = new Rope();
+  return rope.simulate(instructions);
 };
 
 export const getPart2Answer = (input: string): void => {
