@@ -34,40 +34,23 @@ export class Rope {
       for (let i = 1; i < this.knotPositions.length && knotMoved; i++) {
         const tail = this.knotPositions[i];
         const head = this.knotPositions[i - 1];
-        if (Math.abs(head.x - tail.x) > 1 || Math.abs(head.y - tail.y) > 1) {
-          const moveDiagonally = head.x !== tail.x && head.y !== tail.y;
 
-          if (moveDiagonally) {
-            if (head.x < tail.x && head.y > tail.y) {
-              tail.x -= 1;
-              tail.y += 1;
-            } else if (head.x > tail.x && head.y > tail.y) {
-              tail.x += 1;
-              tail.y += 1;
-            } else if (head.x < tail.x && head.y < tail.y) {
-              tail.x -= 1;
-              tail.y -= 1;
-            } else {
-              tail.x += 1;
-              tail.y -= 1;
-            }
-          } else if (head.x < tail.x) {
-            tail.x -= 1;
-          } else if (head.x > tail.x) {
-            tail.x += 1;
-          } else if (head.y < tail.y) {
-            tail.y -= 1;
-          } else if (head.y > tail.y) {
-            tail.y += 1;
+        if (Math.abs(head.x - tail.x) > 1 || Math.abs(head.y - tail.y) > 1) {
+          const distanceToMove = {
+            x: Math.min(Math.max(head.x - tail.x, -1), 1),
+            y: Math.min(Math.max(head.y - tail.y, -1), 1),
+          };
+
+          if (distanceToMove.x !== 0 || distanceToMove.y !== 0) {
+            tail.x += distanceToMove.x;
+            tail.y += distanceToMove.y;
+          } else {
+            knotMoved = false;
           }
 
           if (i === this.knotPositions.length - 1) {
             visited.push(Object.assign({}, this.knotPositions[i]));
           }
-
-          knotMoved = true;
-        } else {
-          knotMoved = false;
         }
       }
     }
