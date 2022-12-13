@@ -28,30 +28,42 @@ export class Rope {
     const visited: Coordinate[] = [];
 
     for (let _ = 0; _ < vector.distance; _++) {
-      let lastMovedKnotPriorLocation: Coordinate = Object.assign({}, this.head);
-
       this.moveHead(vector.direction);
 
       let knotMoved = true;
       for (let i = 1; i < this.knotPositions.length && knotMoved; i++) {
-        const chasingKnot = this.knotPositions[i];
-        const movedKnot = this.knotPositions[i - 1];
-        if (
-          Math.abs(movedKnot.x - chasingKnot.x) > 1 ||
-          Math.abs(movedKnot.y - chasingKnot.y) > 1
-        ) {
-          let chasingKnotLocationBeforeMove = Object.assign({}, chasingKnot);
+        const tail = this.knotPositions[i];
+        const head = this.knotPositions[i - 1];
+        if (Math.abs(head.x - tail.x) > 1 || Math.abs(head.y - tail.y) > 1) {
+          const moveDiagonally = head.x !== tail.x && head.y !== tail.y;
 
-          chasingKnot.x = lastMovedKnotPriorLocation.x;
-          chasingKnot.y = lastMovedKnotPriorLocation.y;
+          if (moveDiagonally) {
+            if (head.x < tail.x && head.y > tail.y) {
+              tail.x -= 1;
+              tail.y += 1;
+            } else if (head.x > tail.x && head.y > tail.y) {
+              tail.x += 1;
+              tail.y += 1;
+            } else if (head.x < tail.x && head.y < tail.y) {
+              tail.x -= 1;
+              tail.y -= 1;
+            } else {
+              tail.x += 1;
+              tail.y -= 1;
+            }
+          } else if (head.x < tail.x) {
+            tail.x -= 1;
+          } else if (head.x > tail.x) {
+            tail.x += 1;
+          } else if (head.y < tail.y) {
+            tail.y -= 1;
+          } else if (head.y > tail.y) {
+            tail.y += 1;
+          }
 
           if (i === this.knotPositions.length - 1) {
             visited.push(Object.assign({}, this.knotPositions[i]));
           }
-          lastMovedKnotPriorLocation = Object.assign(
-            {},
-            chasingKnotLocationBeforeMove
-          );
 
           knotMoved = true;
         } else {
@@ -81,8 +93,8 @@ export class Rope {
   simulate = (vectors: Vector[]): number => {
     const visited: Coordinate[] = [{ x: 0, y: 0 }];
 
-    for (let vector of vectors) {
-      const visitedCoordinatesThisMove = this.move(vector);
+    for (let i = 0; i < vectors.length; i++) {
+      const visitedCoordinatesThisMove = this.move(vectors[i]);
 
       for (let visitedCoordinateThisMove of visitedCoordinatesThisMove) {
         if (
@@ -100,34 +112,6 @@ export class Rope {
     return visited.length;
   };
 }
-
-export const visualize = (rope: Rope): void => {
-  const knotPositions = rope.knotPositions;
-  let minX = Math.min(...rope.knotPositions.map((knot) => knot.x));
-  let maxX = Math.max(...rope.knotPositions.map((knot) => knot.x));
-  let minY = Math.min(...rope.knotPositions.map((knot) => knot.y));
-  let maxY = Math.max(...rope.knotPositions.map((knot) => knot.x));
-
-  console.log(`${minX},${minY},${maxX},${maxY}`);
-  let grid: string = "";
-  for (let y = minY; y <= maxY; y++) {
-    for (let x = minX; x <= maxX; x++) {
-      const knot = knotPositions.find((knot) => knot.x === x && knot.y === y);
-      if (knot) {
-        const index = knotPositions.indexOf(knot);
-        const marker =
-          index === 0 ? "H" : index === knotPositions.length - 1 ? "T" : index;
-
-        grid += marker.toString();
-      } else {
-        grid += ".";
-      }
-    }
-    grid += "\n";
-  }
-
-  console.log(grid);
-};
 
 export const parseInput = (input: string): Vector[] => {
   return input
@@ -149,6 +133,8 @@ export const getPart1Answer = (input: string): number => {
   return rope.simulate(instructions);
 };
 
-export const getPart2Answer = (input: string): void => {
-  return;
+export const getPart2Answer = (input: string): number => {
+  const instructions = parseInput(input);
+  const rope = new Rope(10);
+  return rope.simulate(instructions);
 };

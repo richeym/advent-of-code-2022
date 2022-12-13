@@ -7,7 +7,6 @@ import {
   parseInput,
   Rope,
   Vector,
-  visualize,
 } from ".";
 import { readFileToString } from "../../util";
 
@@ -126,12 +125,12 @@ describe("Day 09", () => {
 
   it("solves sample input part 2", () => {
     const rope = new Rope(10);
-    const input = parseInput(sampleInput2);
+    const input = parseInput(sampleInput);
     const result = rope.simulate(input);
     expect(result).toEqual(1);
   });
 
-  it.skip("solves sample input part 2 - larger data set", () => {
+  it("solves sample input part 2 - larger data set", () => {
     const input = parseInput(sampleInput2);
     const rope = new Rope(10);
     const result = rope.simulate(input);
@@ -143,7 +142,8 @@ describe("Day 09", () => {
     expect(result).toEqual(6057);
   });
 
-  it.skip("solves part 2", () => {
-    getPart2Answer(realInput);
+  it("solves part 2", () => {
+    const result = getPart2Answer(realInput);
+    expect(result).toEqual(2514);
   });
 });
