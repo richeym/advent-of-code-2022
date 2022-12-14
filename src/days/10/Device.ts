@@ -6,40 +6,31 @@ export class Device {
       cycles: [],
       signalStrengthSum: 0,
     };
-    const cycles: DeviceCycle[] = [];
 
     let x: number = 1;
-
-    let command = commands.shift();
-
     let cycleNo = 1;
-    while (command && cycleNo <= 220) {
-      const output = command.startOrContinueExecution();
 
-      if (output.completed) {
-        x += output.value;
-        command = commands.shift();
+    commands.forEach((command) => {
+      while (!command.completed) {
+        if ((cycleNo - 20) % 40 === 0) {
+          response.cycles.push({
+            cycleNo,
+            x,
+            signalStrength: cycleNo * x,
+          });
+
+          response.signalStrengthSum += cycleNo * x;
+        }
+
+        const output = command.startOrContinueExecution();
+
+        if (command.completed) {
+          x += output.value;
+        }
+
+        cycleNo++;
       }
-
-      cycles.push({
-        cycleNo: cycleNo,
-        x,
-        signalStrength: cycleNo * x,
-      });
-
-      cycleNo++;
-    }
-
-    for (let i = 19; i < 220 && i < cycles.length; i += 40) {
-      response.cycles.push(cycles[i]);
-    }
-
-    response.signalStrengthSum = response.cycles.reduce(
-      (acc: number, curr: DeviceCycle) => {
-        return acc + curr.signalStrength;
-      },
-      0
-    );
+    });
 
     return response;
   };

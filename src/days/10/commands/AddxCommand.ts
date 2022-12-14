@@ -2,16 +2,16 @@ import { BaseCommand } from "./BaseCommand";
 import { CommandCycleResponse } from "../types";
 
 export class AddxCommand extends BaseCommand {
-  private cyclesToCompletion: number;
+  private timeRemaining: number;
 
   constructor(params: string) {
     super(params);
-    this.cyclesToCompletion = 2;
+    this.timeRemaining = 2;
   }
 
   startOrContinueExecution = (): CommandCycleResponse => {
-    this.cyclesToCompletion--;
-    if (this.cyclesToCompletion === 0) {
+    this.timeRemaining--;
+    if (this.timeRemaining === 0) {
       this.completed = true;
       return {
         completed: this.completed,

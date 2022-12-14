@@ -63,14 +63,14 @@ describe("Day 10", () => {
         (c: DeviceCycle) => c.cycleNo === cycleNo
       )!;
 
-      expect(cycle.signalStrength).toBe(expectedStrength);
       expect(cycle.x).toBe(expectedX);
+      expect(cycle.signalStrength).toBe(expectedStrength);
     }
   );
 
   it("solves part 1", () => {
     const answer = getPart1Answer(realInput);
-    expect(answer).toBe(14420);
+    expect(answer).toBe(16880);
   });
 
   it("solves part 2", () => {
