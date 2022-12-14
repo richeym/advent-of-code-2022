@@ -1,27 +1,7 @@
-export interface Command {
-  params: string;
-  execute(): void;
-}
-
-abstract class BaseCommand implements Command {
-  abstract execute(): void;
-
-  constructor(public params: string) {}
-}
-
-export class NoopCommand extends BaseCommand {
-  execute(): void {}
-}
-
-export class AddxCommand extends BaseCommand {
-  execute(): void {
-    throw new Error("Method not implemented.");
-  }
-}
-
-export class Device {
-  constructor(private readonly commands: Command[]) {}
-}
+import { AddxCommand } from "./commands/AddxCommand";
+import { Command } from "./types";
+import { Device } from "./Device";
+import { NoopCommand } from "./commands/NoopCommand";
 
 export const parseInput = (input: string): Command[] => {
   const lines = input.trim().split("\n");
@@ -38,9 +18,14 @@ export const parseInput = (input: string): Command[] => {
   return inputs;
 };
 
-export const getPart1Answer = (input: string): void => {
-  return;
+export const getPart1Answer = (input: string): number => {
+  const commands = parseInput(input);
+  const device = new Device();
+  const response = device.execute(commands);
+
+  return response.signalStrengthSum;
 };
+
 export const getPart2Answer = (input: string): void => {
   return;
 };
