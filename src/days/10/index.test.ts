@@ -73,7 +73,36 @@ describe("Day 10", () => {
     expect(answer).toBe(16880);
   });
 
+  it("sets pixels in first CRT row", () => {
+    const commands = [
+      new AddxCommand("15"),
+      new AddxCommand("-11"),
+      new AddxCommand("6"),
+      new AddxCommand("-3"),
+      new AddxCommand("5"),
+      new AddxCommand("-1"),
+      new AddxCommand("-8"),
+      new AddxCommand("13"),
+      new AddxCommand("4"),
+      new NoopCommand(""),
+      new AddxCommand("-1"),
+    ];
+    const device = new Device();
+    const response = device.execute(commands);
+
+    expect(response.crt[0]).toEqual("##..##..##..##..##..#");
+  });
+
   it("solves part 2", () => {
-    getPart2Answer(realInput);
+    const expectedAnswer = `###..#..#..##..####..##....##.###..###..
+#..#.#.#..#..#....#.#..#....#.#..#.#..#.
+#..#.##...#..#...#..#..#....#.###..#..#.
+###..#.#..####..#...####....#.#..#.###..
+#.#..#.#..#..#.#....#..#.#..#.#..#.#.#..
+#..#.#..#.#..#.####.#..#..##..###..#..#.
+`;
+    const answer = getPart2Answer(realInput);
+
+    expect(answer).toEqual(expectedAnswer);
   });
 });

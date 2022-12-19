@@ -1,6 +1,7 @@
 export interface DeviceExecutionResponse {
   cycles: DeviceCycle[];
   signalStrengthSum: number;
+  crt: string[];
 }
 
 export interface DeviceCycle {

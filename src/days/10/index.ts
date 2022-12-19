@@ -26,6 +26,10 @@ export const getPart1Answer = (input: string): number => {
   return response.signalStrengthSum;
 };
 
-export const getPart2Answer = (input: string): void => {
-  return;
+export const getPart2Answer = (input: string): string => {
+  const commands = parseInput(input);
+  const device = new Device();
+  const response = device.execute(commands);
+
+  return response.crt.join("\n");
 };
