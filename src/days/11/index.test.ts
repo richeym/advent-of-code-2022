@@ -1,11 +1,13 @@
 import * as path from "path";
 
 import { getPart1Answer, getPart2Answer, parseInput, parseMonkey } from ".";
-import { calculateNewWorryLevel } from "./services/WorryLevelCalculator";
 import { Monkey, MonkeyTestExpression } from "./types";
 import { readFileToString } from "../../util";
-import { getMonkeyToThrowTo } from "./services/ItemThrowCalculator";
-import { MonkeyService } from "./services/MonkeyService";
+import {
+  calculateNewWorryLevel,
+  getMonkeyToThrowTo,
+  MonkeyService,
+} from "./services/MonkeyService";
 
 describe("Day 11", () => {
   const sampleInput = readFileToString(
@@ -42,8 +44,8 @@ describe("Day 11", () => {
   });
 
   const operationParsingTestCases = [
-    [79, "old * 19", 500],
-    [54, "old + 6", 20],
+    [79, "old * 19", 1501],
+    [54, "old + 6", 60],
   ];
 
   test.each(operationParsingTestCases)(
@@ -80,7 +82,7 @@ describe("Day 11", () => {
 
   it("solves sample input", () => {
     const monkeys = parseInput(sampleInput);
-    const monkeyService = new MonkeyService(monkeys);
+    const monkeyService = new MonkeyService(monkeys, (i) => Math.floor(i / 3));
 
     const result = monkeyService.execute(20);
 
@@ -89,7 +91,7 @@ describe("Day 11", () => {
     expect(monkeys[2].items).toHaveLength(0);
     expect(monkeys[3].items).toHaveLength(0);
 
-    expect(result.partOne).toBe(10605);
+    expect(result).toBe(10605);
   });
 
   it("solves part 1", () => {
@@ -98,7 +100,17 @@ describe("Day 11", () => {
     expect(result).toBe(102399);
   });
 
+  it("solves sample input part 2", () => {
+    const monkeys = parseInput(sampleInput);
+    const monkeyService = new MonkeyService(monkeys);
+
+    const result = monkeyService.execute(10000, true);
+    expect(result).toBe(2713310158);
+  });
+
   it("solves part 2", () => {
-    getPart2Answer(realInput);
+    const result = getPart2Answer(realInput);
+
+    expect(result).toBe(23641658401);
   });
 });

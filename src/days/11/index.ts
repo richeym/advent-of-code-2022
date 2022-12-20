@@ -25,11 +25,16 @@ export const parseInput = (input: string): Monkey[] => {
 
 export const getPart1Answer = (input: string): number => {
   const monkeys = parseInput(input);
-  const monkeyService = new MonkeyService(monkeys);
+  const monkeyService = new MonkeyService(monkeys, (item) =>
+    Math.floor(item / 3)
+  );
 
-  return monkeyService.execute(20).partOne;
+  return monkeyService.execute(20);
 };
 
-export const getPart2Answer = (input: string): void => {
-  return;
+export const getPart2Answer = (input: string): number => {
+  const monkeys = parseInput(input);
+  const monkeyService = new MonkeyService(monkeys);
+
+  return monkeyService.execute(10000, true);
 };
