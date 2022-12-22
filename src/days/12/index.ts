@@ -1,55 +1,71 @@
-var util = require("util");
-
-export class Vector {
-  constructor(public weight: number, public to: Node) {}
-}
-
-export class Node {
-  readonly vectors: Vector[] = [];
-  readonly isStart: boolean;
-  readonly isEnd: boolean;
-  readonly elevation: number;
-
-  constructor(rawNode: string) {
-    this.isStart = rawNode === "S";
-    this.isEnd = rawNode === "E";
-
-    this.elevation = this.isStart
-      ? "a".charCodeAt(0)
-      : this.isEnd
-      ? "z".charCodeAt(0)
-      : rawNode.charCodeAt(0);
-  }
-}
+import { HeightGrid } from "./HeightGrid";
+import { Node } from "./Node";
 
 export class HeightMap {
-  readonly height: number;
-  readonly width: number;
-  startX: number = 0;
-  startY: number = 0;
+  nodes: Record<string, { [key: string]: number }> = {};
 
-  constructor(readonly grid: Node[][]) {
-    this.height = this.grid.length;
-    this.width = this.grid[0].length;
+  constructor(grid: HeightGrid) {
+    for (let x = 0; x < grid.width; x++) {
+      for (let y = 0; y < grid.height; y++) {
+        const rawNode = grid.grid[y][x];
+        const nodeKey = rawNode.isStart
+          ? "start"
+          : rawNode.isEnd
+          ? "end"
+          : `${x},${y}`;
 
-    for (let x = 0; x < this.width; x++) {
-      for (let y = 0; y < this.height; y++) {
-        if (this.grid[y][x].isStart) {
-          this.startX = x;
-          this.startY = y;
-          break;
+        this.nodes[nodeKey] = {};
+
+        if (nodeKey === "end") continue;
+
+        const rightX = x + 1;
+        if (
+          rightX < grid.width &&
+          grid.grid[y][rightX].elevation <= rawNode.elevation + 1
+        ) {
+          const neighbourKey = grid.grid[y][rightX].isStart
+            ? "start"
+            : grid.grid[y][rightX].isEnd
+            ? "end"
+            : `${rightX},${y}`;
+          this.nodes[nodeKey][neighbourKey] = 1;
+        }
+        const leftX = x - 1;
+        if (
+          leftX >= 0 &&
+          grid.grid[y][leftX].elevation <= rawNode.elevation + 1
+        ) {
+          const neighbourKey = grid.grid[y][leftX].isStart
+            ? "start"
+            : grid.grid[y][leftX].isEnd
+            ? "end"
+            : `${leftX},${y}`;
+          this.nodes[nodeKey][neighbourKey] = 1;
+        }
+        const upY = y - 1;
+        if (upY >= 0 && grid.grid[upY][x].elevation <= rawNode.elevation + 1) {
+          const neighbourKey = grid.grid[upY][x].isStart
+            ? "start"
+            : grid.grid[upY][x].isEnd
+            ? "end"
+            : `${x},${upY}`;
+          this.nodes[nodeKey][neighbourKey] = 1;
+        }
+        const downY = y + 1;
+        if (
+          downY < grid.height &&
+          grid.grid[downY][x].elevation <= rawNode.elevation + 1
+        ) {
+          const neighbourKey = grid.grid[downY][x].isStart
+            ? "start"
+            : grid.grid[downY][x].isEnd
+            ? "end"
+            : `${x},${downY}`;
+          this.nodes[nodeKey][neighbourKey] = 1;
         }
       }
     }
-
-    console.log(util.inspect(this, { depth: 2 }));
   }
-}
-
-export class RouteFinder {
-  shortestRoute: number | undefined;
-
-  constructor(public readonly map: HeightMap) {}
 }
 
 export const parseInput = (input: string): HeightMap => {
@@ -58,7 +74,8 @@ export const parseInput = (input: string): HeightMap => {
     .split("\n")
     .map((x) => x.split("").map((raw) => new Node(raw)));
 
-  return new HeightMap(data);
+  const grid = new HeightGrid(data);
+  return new HeightMap(grid);
 };
 
 export const getPart1Answer = (input: string): void => {

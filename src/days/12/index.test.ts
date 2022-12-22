@@ -1,7 +1,9 @@
 import * as path from "path";
 
-import { getPart1Answer, getPart2Answer, parseInput, RouteFinder } from ".";
+import { getPart1Answer, getPart2Answer, parseInput } from ".";
+import { RouteFinder } from "./RouteFinder";
 import { readFileToString } from "../../util";
+import util from "util";
 
 describe("Day 12", () => {
   const sampleInput = readFileToString(
@@ -13,12 +15,13 @@ describe("Day 12", () => {
   it("parses input", () => {
     const parsedInput = parseInput(sampleInput);
 
-    expect(parsedInput.grid).toHaveLength(5);
+    console.log(util.inspect(parsedInput, { depth: 2 }));
+    //expect(parsedInput).toHaveLength(5);
   });
 
   it("solves sample input", () => {
-    const parsedInput = parseInput(sampleInput);
-    const routeFinder = new RouteFinder(parsedInput);
+    const heightMap = parseInput(sampleInput);
+    const routeFinder = new RouteFinder(heightMap);
 
     // expect(output).toBe(31);
   });
