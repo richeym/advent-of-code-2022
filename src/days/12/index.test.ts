@@ -19,15 +19,16 @@ describe("Day 12", () => {
     //expect(parsedInput).toHaveLength(5);
   });
 
-  it("solves sample input", () => {
+  it.only("solves sample input", () => {
     const heightMap = parseInput(sampleInput);
     const routeFinder = new RouteFinder(heightMap);
-
-    // expect(output).toBe(31);
+    const output = routeFinder.findShortest();
+    expect(output).toBe(31);
   });
 
   it("solves part 1", () => {
-    getPart1Answer(realInput);
+    const answer = getPart1Answer(realInput);
+    expect(answer).toBe(2);
   });
 
   it("solves part 2", () => {

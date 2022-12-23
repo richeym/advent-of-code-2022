@@ -1,7 +1,4 @@
-import { Vector } from "./Vector";
-
 export class Node {
-  readonly vectors: Vector[] = [];
   readonly isStart: boolean;
   readonly isEnd: boolean;
   readonly elevation: number;
