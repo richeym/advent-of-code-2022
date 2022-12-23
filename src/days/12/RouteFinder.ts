@@ -1,59 +1,82 @@
+import { HeightGrid } from "./HeightGrid";
 import { HeightMap } from "./HeightMap";
 import { NodeWeight as NodeCosts } from "./types";
 
 type NodeKeys = { [key: string]: string | null };
+type HeuristicFunction = (
+  coordinate: string,
+  endX: number,
+  endY: number
+) => number;
 
 export class RouteFinder {
-  constructor(public readonly map: HeightMap) {}
+  private readonly heightMap: HeightMap;
 
-  findShortest = (): number => {
-    return this.dijkstra();
-  };
+  private heuristicFn: HeuristicFunction = (coordinate, endX, endY): number =>
+    0;
 
-  private dijkstra = (): number => {
-    const costs = Object.assign({ end: Infinity }, this.map.nodes.start);
+  constructor(
+    public readonly grid: HeightGrid,
+    private readonly useAStar = false
+  ) {
+    this.heightMap = new HeightMap(grid);
+    if (this.useAStar) {
+      this.heuristicFn = this.aStarHeuristic;
+    }
+  }
+
+  findShortest = (): { distance: number; path: string[] } => {
+    const map = this.heightMap;
+    const costs = Object.assign({ start: 0 }, map.nodes.start);
     const parents: NodeKeys = { end: null };
     const processed: string[] = [];
 
-    for (let child in this.map.nodes.start) {
+    for (let child in map.nodes.start) {
       parents[child] = "start";
     }
 
     let node = this.getLowestCostNode(costs, processed);
 
+    let i = 0;
     while (node) {
+      i++;
       let cost = costs[node];
-      let children = this.map.nodes[node];
+      let children = map.nodes[node];
 
-      for (let n in children) {
-        let newCost = cost + children[n];
-        if (!costs[n] || costs[n] > newCost) {
-          costs[n] = newCost;
-          parents[n] = node;
+      for (let child in children) {
+        const newCost =
+          cost +
+          children[child] +
+          this.heuristicFn(child, this.grid.endX, this.grid.endY);
+
+        if (!costs[child] || costs[child] > newCost) {
+          costs[child] = newCost;
+          parents[child] = node;
         }
       }
 
       processed.push(node);
 
       node = this.getLowestCostNode(costs, processed);
+
+      if (node === "end") break;
     }
 
+    console.log(i);
     const optimalPath = ["end"];
     let parent = parents["end"];
 
-    // while (parent) {
-    //   optimalPath.push(parent);
-    //   parent = parents[parent];
-    // }
+    while (parent && parent !== "start") {
+      optimalPath.push(parent);
+      parent = parents[parent];
+    }
 
-    // optimalPath.reverse();
+    optimalPath.reverse();
 
-    // const results = {
-    //   distance: costs.end,
-    //   path: optimalPath,
-    // };
-
-    return costs["end"];
+    return {
+      distance: optimalPath.length,
+      path: optimalPath,
+    };
   };
 
   private getLowestCostNode = (
@@ -68,5 +91,20 @@ export class RouteFinder {
       }
       return lowest;
     }, null);
+  };
+
+  private aStarHeuristic = (
+    coordinate: string,
+    endX: number,
+    endY: number
+  ): number => {
+    if (coordinate === "start" || coordinate === "end") return 0;
+
+    const [x, y] = coordinate.split(",").map(Number);
+
+    const h = Math.abs(x - endX) + Math.abs(y - endY);
+
+    // console.log(`${coordinate}, ${endX}, ${endY}, ${h}`);
+    return h;
   };
 }

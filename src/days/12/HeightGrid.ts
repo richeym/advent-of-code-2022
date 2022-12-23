@@ -6,6 +6,8 @@ export class HeightGrid {
   readonly width: number;
   startX: number = 0;
   startY: number = 0;
+  endX: number = 0;
+  endY: number = 0;
 
   constructor(readonly grid: Node[][]) {
     this.height = this.grid.length;
@@ -16,7 +18,9 @@ export class HeightGrid {
         if (this.grid[y][x].isStart) {
           this.startX = x;
           this.startY = y;
-          break;
+        } else if (this.grid[y][x].isEnd) {
+          this.endX = x;
+          this.endY = y;
         }
       }
     }
