@@ -34,14 +34,14 @@ describe("Day 12", () => {
     expect(output.distance).toBe(31);
   });
 
-  it.only("solves sample input using A*", () => {
+  it.skip("solves sample input using A*", () => {
     const heightMap = parseInput(sampleInput);
     const routeFinder = new RouteFinder(heightMap, true);
     const output = routeFinder.findShortest();
     expect(output.distance).toBe(31);
   });
 
-  it("solves part 1 using Dijkstra", () => {
+  it.skip("solves part 1 using Dijkstra", () => {
     const answer = getPart1AnswerUsingDijkstra(realInput);
     expect(answer).toBe(425);
   });

@@ -104,7 +104,6 @@ export class RouteFinder {
 
     const h = Math.abs(x - endX) + Math.abs(y - endY);
 
-    // console.log(`${coordinate}, ${endX}, ${endY}, ${h}`);
     return h;
   };
 }
