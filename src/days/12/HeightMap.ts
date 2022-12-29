@@ -1,7 +1,7 @@
 import { NodeWeight } from "./types";
 import { HeightGrid } from "./HeightGrid";
 
-export class HeightMap {
+export class RouteMap {
   nodes: Record<string, NodeWeight> = {};
 
   constructor(grid: HeightGrid) {

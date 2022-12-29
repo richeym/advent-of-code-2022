@@ -8,6 +8,8 @@ import {
 } from ".";
 import { RouteFinder } from "./RouteFinder";
 import { readFileToString } from "../../util";
+import { astar } from "./algorithms/astar";
+import { dijkstra } from "./algorithms/dijkstra";
 
 describe("Day 12", () => {
   const sampleInput = readFileToString(
@@ -27,17 +29,17 @@ describe("Day 12", () => {
     expect(parsedInput.endY).toBe(2);
   });
 
-  it.only("solves sample input using dijkstra", () => {
+  it("solves sample input using dijkstra", () => {
     const heightMap = parseInput(sampleInput);
-    const routeFinder = new RouteFinder(heightMap);
-    const output = routeFinder.findShortest();
+    const routeFinder = new RouteFinder(heightMap, dijkstra);
+    const output = routeFinder.findRoute();
     expect(output.distance).toBe(31);
   });
 
   it.skip("solves sample input using A*", () => {
     const heightMap = parseInput(sampleInput);
-    const routeFinder = new RouteFinder(heightMap, true);
-    const output = routeFinder.findShortest();
+    const routeFinder = new RouteFinder(heightMap, astar);
+    const output = routeFinder.findRoute();
     expect(output.distance).toBe(31);
   });
 
@@ -46,7 +48,7 @@ describe("Day 12", () => {
     expect(answer).toBe(425);
   });
 
-  it.only("solves part 1 using A*", () => {
+  it.skip("solves part 1 using A*", () => {
     const answer = getPart1AnswerUsingAStar(realInput);
     expect(answer).toBe(425);
   });

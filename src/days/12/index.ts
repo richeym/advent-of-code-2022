@@ -1,5 +1,7 @@
+import { astar } from "./algorithms/astar";
+import { dijkstra } from "./algorithms/dijkstra";
 import { HeightGrid } from "./HeightGrid";
-import { HeightMap } from "./HeightMap";
+import { RouteMap } from "./HeightMap";
 import { Node } from "./Node";
 import { RouteFinder } from "./RouteFinder";
 
@@ -14,10 +16,10 @@ export const parseInput = (input: string): HeightGrid => {
 
 export const getPart1AnswerUsingDijkstra = (input: string): number => {
   const heightMap = parseInput(input);
-  const routeFinder = new RouteFinder(heightMap);
+  const routeFinder = new RouteFinder(heightMap, dijkstra);
 
   var startTime = performance.now();
-  const { distance } = routeFinder.findShortest();
+  const { distance } = routeFinder.findRoute();
   var endTime = performance.now();
   console.log(
     `Route found in ${endTime - startTime} milliseconds using Dijkstra`
@@ -27,10 +29,10 @@ export const getPart1AnswerUsingDijkstra = (input: string): number => {
 
 export const getPart1AnswerUsingAStar = (input: string): number => {
   const heightMap = parseInput(input);
-  const routeFinder = new RouteFinder(heightMap, true);
+  const routeFinder = new RouteFinder(heightMap, astar);
 
   var startTime = performance.now();
-  const { distance } = routeFinder.findShortest();
+  const { distance } = routeFinder.findRoute();
   var endTime = performance.now();
   console.log(`Route found in ${endTime - startTime} milliseconds using A*`);
 
