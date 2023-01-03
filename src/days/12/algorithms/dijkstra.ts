@@ -32,7 +32,6 @@ export const dijkstra = (map: RouteMap): Route => {
     if (node === "end") break;
   }
 
-  console.log(i);
   const optimalPath = ["end"];
   let parent = parents["end"];
 

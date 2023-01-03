@@ -3,7 +3,7 @@ import { HeightGrid } from "./HeightGrid";
 import { RouteMap } from "./HeightMap";
 import { Route } from "./types";
 
-type PathFindingFn = (map: RouteMap) => Route;
+type PathFindingFn = (map: RouteMap, endX: number, endY: number) => Route;
 
 export class RouteFinder {
   private readonly map: RouteMap;
@@ -14,6 +14,6 @@ export class RouteFinder {
     this.pathFindingFn = pathFindingFn ?? dijkstra;
   }
 
-  findRoute = (): { distance: number; path: string[] } =>
-    this.pathFindingFn(this.map);
+  findRoute = (): Route =>
+    this.pathFindingFn(this.map, this.grid.endX, this.grid.endY);
 }

@@ -4,6 +4,7 @@ import { HeightGrid } from "./HeightGrid";
 import { RouteMap } from "./HeightMap";
 import { Node } from "./Node";
 import { RouteFinder } from "./RouteFinder";
+import { Route } from "./types";
 
 export const parseInput = (input: string): HeightGrid => {
   const data = input
@@ -14,29 +15,18 @@ export const parseInput = (input: string): HeightGrid => {
   return new HeightGrid(data);
 };
 
-export const getPart1AnswerUsingDijkstra = (input: string): number => {
+export const getPart1AnswerUsingDijkstra = (input: string): Route => {
   const heightMap = parseInput(input);
   const routeFinder = new RouteFinder(heightMap, dijkstra);
 
-  var startTime = performance.now();
-  const { distance } = routeFinder.findRoute();
-  var endTime = performance.now();
-  console.log(
-    `Route found in ${endTime - startTime} milliseconds using Dijkstra`
-  );
-  return distance;
+  return routeFinder.findRoute();
 };
 
-export const getPart1AnswerUsingAStar = (input: string): number => {
+export const getPart1AnswerUsingAStar = (input: string): Route => {
   const heightMap = parseInput(input);
   const routeFinder = new RouteFinder(heightMap, astar);
 
-  var startTime = performance.now();
-  const { distance } = routeFinder.findRoute();
-  var endTime = performance.now();
-  console.log(`Route found in ${endTime - startTime} milliseconds using A*`);
-
-  return distance;
+  return routeFinder.findRoute();
 };
 
 export const getPart2Answer = (input: string): void => {
