@@ -1,27 +1,30 @@
 import { RouteMap } from "../HeightMap";
 import { NodeKeys, NodeWeight, Route } from "../types";
 import util from "util";
+import { writeFileSync } from "fs";
+import { join } from "path";
+import { findStartOfPacketMarker } from "../../06";
 
-class Cost {
+class NodeEvaluation {
   f: number;
 
   constructor(
     readonly key: string,
-    public parent: Cost | null,
+    public parent: NodeEvaluation | null,
     readonly g: number, // cost to move from the starting point A to this square, following the path generated to get there.
-    readonly h: number // estimated movement cost to move from that given square on the grid to the final destination, point B
+    readonly h: number // estimated movement cost to move from a given square on the grid to the final destination, point B
   ) {
     this.f = g + h;
   }
 }
 
 export const astar = (map: RouteMap, endX: number, endY: number): Route => {
-  const startingNodeCost = new Cost("start", null, 0, 0);
+  const startingNodeCost = new NodeEvaluation("start", null, 0, 0);
 
-  const openList: Cost[] = [startingNodeCost]; // list of nodes to evaluate next
-  const closedList: Cost[] = []; // list of nodes already evaluated and to be ignored
+  const openList: NodeEvaluation[] = [startingNodeCost]; // list of nodes to evaluate next
+  const closedList: NodeEvaluation[] = []; // list of nodes already evaluated and to be ignored
 
-  let currentNode: Cost | null = null;
+  let currentNode: NodeEvaluation | null = null;
 
   while (openList.length > 0 && !closedList.find((x) => x.key === "end")) {
     currentNode = findLowestCostFNodeIn(openList);
@@ -32,20 +35,22 @@ export const astar = (map: RouteMap, endX: number, endY: number): Route => {
         continue;
       }
 
-      // calculate F, G, and H cost of the node using Manhattan heuristic
-      let costForPathToCurrentNode = new Cost(
+      const g = currentNode.g + map.nodes[currentNode.key][adjacentNodeKey];
+
+      let costForPathToCurrentNode = new NodeEvaluation(
         adjacentNodeKey,
         currentNode,
-        map.nodes[currentNode.key][adjacentNodeKey],
+        g,
         getManhattanHeuristic(adjacentNodeKey, endX, endY)
       );
 
-      // if on the open list, check to see if the path to this square is better
+      // find the node on the open list
       const bestCostForCurrentNode = openList.find(
-        (x: Cost) => x.key === adjacentNodeKey
+        (x: NodeEvaluation) => x.key === adjacentNodeKey
       )!;
+
+      // if the node is on the open list but the path to this square is better, record the cost and update the parent
       if (bestCostForCurrentNode) {
-        // if the path to this square is better, record the cost and update the parent
         if (costForPathToCurrentNode.g < bestCostForCurrentNode.g) {
           openList[openList.indexOf(bestCostForCurrentNode)] =
             costForPathToCurrentNode;
@@ -58,15 +63,7 @@ export const astar = (map: RouteMap, endX: number, endY: number): Route => {
     }
   }
 
-  let path: Cost[] = [];
-  let currentPathNode: Cost | null = closedList.find((x) => x.key === "end")!;
-  while (currentPathNode !== null) {
-    path.push(currentPathNode);
-    currentPathNode = currentPathNode.parent;
-  }
-
-  // remove start node and flip route
-  path = path.reverse().splice(1);
+  const path = getPathToTargetNode(closedList);
 
   const results = {
     distance: path.length,
@@ -76,13 +73,16 @@ export const astar = (map: RouteMap, endX: number, endY: number): Route => {
   return results;
 };
 
-const findLowestCostFNodeIn = (costs: Cost[]): Cost => {
-  const lowestCodeNode = costs.reduce((lowest: Cost | null, node: Cost) => {
-    if (lowest === null || node.f < lowest.f) {
-      lowest = node;
-    }
-    return lowest;
-  }, null);
+const findLowestCostFNodeIn = (costs: NodeEvaluation[]): NodeEvaluation => {
+  const lowestCodeNode = costs.reduce(
+    (lowest: NodeEvaluation | null, node: NodeEvaluation) => {
+      if (lowest === null || node.f < lowest.f) {
+        lowest = node;
+      }
+      return lowest;
+    },
+    null
+  );
 
   if (lowestCodeNode === null) throw Error("Error finding lowest cost node");
   return lowestCodeNode;
@@ -103,13 +103,32 @@ const getManhattanHeuristic = (
 };
 
 const moveNodeFromOpenToClosedList = (
-  currentNode: Cost,
-  openList: Cost[],
-  closedList: Cost[]
+  currentNode: NodeEvaluation,
+  openList: NodeEvaluation[],
+  closedList: NodeEvaluation[]
 ): void => {
   closedList.push(currentNode);
   openList.splice(openList.indexOf(currentNode), 1);
 };
 
-const nodeIsInClosedList = (adjacentNodeKey: string, closedList: Cost[]) =>
-  closedList.find((node) => node.key === adjacentNodeKey) !== undefined;
+const nodeIsInClosedList = (
+  adjacentNodeKey: string,
+  closedList: NodeEvaluation[]
+) => closedList.find((node) => node.key === adjacentNodeKey) !== undefined;
+
+const getPathToTargetNode = (
+  closedList: NodeEvaluation[]
+): NodeEvaluation[] => {
+  let path: NodeEvaluation[] = [];
+  let currentPathNode: NodeEvaluation | null = closedList.find(
+    (x) => x.key === "end"
+  )!;
+  while (currentPathNode !== null) {
+    path.push(currentPathNode);
+    currentPathNode = currentPathNode.parent;
+  }
+
+  // remove start node and flip route
+  path = path.reverse().splice(1);
+  return path;
+};

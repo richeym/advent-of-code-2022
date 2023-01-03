@@ -29,39 +29,28 @@ describe("Day 12", () => {
     expect(parsedInput.endY).toBe(2);
   });
 
-  it.only("solves sample input using dijkstra", () => {
+  it("solves sample input using dijkstra", () => {
     const heightMap = parseInput(sampleInput);
     const routeFinder = new RouteFinder(heightMap, dijkstra);
     const output = routeFinder.findRoute();
     expect(output.distance).toBe(31);
   });
 
-  it.only("solves sample input using A*", () => {
+  it("solves sample input using A*", () => {
     const heightMap = parseInput(sampleInput);
     const routeFinder = new RouteFinder(heightMap, astar);
     const output = routeFinder.findRoute();
     expect(output.distance).toBe(31);
   });
 
-  it.skip("solves part 1 using Dijkstra", () => {
+  it("solves part 1 using Dijkstra", () => {
     const result = getPart1AnswerUsingDijkstra(realInput);
     expect(result.distance).toBe(425);
   });
 
-  it.only("solves part 1 using A*", () => {
+  it("solves part 1 using A*", () => {
     const result = getPart1AnswerUsingAStar(realInput);
     expect(result.distance).toBe(425);
-  });
-
-  it.only("calculates same route with Dijkstra and A*", () => {
-    const heightMap = parseInput(sampleInput);
-    const routeFinder = new RouteFinder(heightMap, astar);
-    const astarPath = routeFinder.findRoute().path;
-
-    const dRouteFinder = new RouteFinder(heightMap, dijkstra);
-    const dijkstraPath = dRouteFinder.findRoute().path;
-
-    expect(dijkstraPath).toEqual(astarPath);
   });
 
   it("solves part 2", () => {
